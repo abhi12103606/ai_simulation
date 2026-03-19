@@ -26,10 +26,6 @@ Return ONLY valid JSON:
     try:
         response = model.generate_content(prompt)
 
-        if not response.text:
-            return {"action": "observe"}
-
-        # Try parsing JSON safely
         text = response.text.strip()
 
         try:
