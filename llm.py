@@ -1,5 +1,6 @@
 import os
 import google.generativeai as genai
+import json
 
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
@@ -12,7 +13,7 @@ You are an autonomous AI agent.
 Context:
 {context}
 
-Return JSON only:
+Return ONLY valid JSON:
 {{
   "thought": "",
   "action": "move/talk/observe/reflect",
@@ -22,5 +23,20 @@ Return JSON only:
 }}
 """
 
-    response = model.generate_content(prompt)
-    return response.text
+    try:
+        response = model.generate_content(prompt)
+
+        if not response.text:
+            return {"action": "observe"}
+
+        # Try parsing JSON safely
+        text = response.text.strip()
+
+        try:
+            return json.loads(text)
+        except:
+            return {"action": "observe"}
+
+    except Exception as e:
+        print("LLM ERROR:", e)
+        return {"action": "observe"}
